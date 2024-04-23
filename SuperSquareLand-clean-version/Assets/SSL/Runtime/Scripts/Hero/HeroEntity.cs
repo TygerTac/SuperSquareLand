@@ -1,4 +1,5 @@
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class HeroEntity : MonoBehaviour
@@ -11,17 +12,36 @@ public class HeroEntity : MonoBehaviour
     private float _horizontalSpeed = 0f;
     private float _moveDirX = 0f;
 
+    [Header("Vertical Movements")]
+    private float _verticalSpeed = 0f;
+
+    [Header("Fall")]
+    [SerializeField] private HeroFallSettings _fallSettings;
+
     [Header("Orientation")]
     [SerializeField] private Transform _orientVisualRoot;
     private float _orientX = 1f;
 
+    [Header("Dash")]
+    [SerializeField] private HeroDashSettings _dashSettings;
+    private bool _isDashing = false;
+    private float _dashTimer = 0f;
+
+
     [Header("Debug")]
     [SerializeField] private bool _guiDebug = false;
+
+    #region Functions Move Dir
+    public float GetMoveDirX()
+    {
+        return _moveDirX;
+    }
 
     public void SetMoveDirX(float dirX)
     {
         _moveDirX = dirX;
     }
+    #endregion
 
     private void FixedUpdate()
     {
@@ -32,7 +52,10 @@ public class HeroEntity : MonoBehaviour
             _UpdateHorizonSpeed();
             _ChangeOrientFromHorizontalMovement();
         } 
+        _ApplyFallGravity();
+
         _ApplyHorizontalSpeed();
+        _ApplyVerticalSpeed();
     }
 
     private void _ChangeOrientFromHorizontalMovement()
@@ -59,7 +82,21 @@ public class HeroEntity : MonoBehaviour
         }
     }
 
+    private void _ApplyFallGravity()
+    {
+        _verticalSpeed -=  _fallSettings.FallGravity * Time.fixedDeltaTime;
+        if(_verticalSpeed < -_fallSettings.fallSpeedMax)
+        {
+            _verticalSpeed = -_fallSettings.fallSpeedMax;
+        }
+    }
 
+    private void _ApplyVerticalSpeed()
+    {
+        Vector2 velocity = _rigidbody.velocity;
+        velocity.y = _verticalSpeed;
+        _rigidbody.velocity = velocity;
+    }
     private void _Accelerate()
     {
         _horizontalSpeed += _movementsSettings.acceleration * Time.fixedDeltaTime;
@@ -86,6 +123,37 @@ public class HeroEntity : MonoBehaviour
             _horizontalSpeed = 0f;
             _ChangeOrientFromHorizontalMovement();
         }
+    }
+    public void _Dash()
+    {
+        if (!_isDashing)
+        {
+            _StartDash();
+        } else if(_isDashing){
+            _UpdateDash();
+        }
+        _UpdateOrientVisual();
+    }
+    private void _StartDash()
+    {
+        _isDashing = true;
+        _dashTimer = 0f;
+        _horizontalSpeed = _dashSettings.dashSpeed;
+        _moveDirX = Mathf.Sign(_horizontalSpeed);
+
+    }
+    private void _UpdateDash()
+    {
+        _dashTimer += Time.deltaTime;
+        if (_dashTimer >= _dashSettings.dashDuration)
+        {
+            _StopDash();
+        }
+    }
+    private void _StopDash()
+    {
+        _isDashing = false;
+        _horizontalSpeed = 0f;
     }
 
     private bool _AreOrientAndMovementOpposite()
@@ -115,6 +183,7 @@ public class HeroEntity : MonoBehaviour
         GUILayout.Label($"MoveDirX = {_moveDirX}");
         GUILayout.Label($"OrientX = {_orientX}");
         GUILayout.Label($"Horizontal Speed = {_horizontalSpeed}");
+        GUILayout.Label($"Vertical Speed = {_verticalSpeed}");
         GUILayout.EndVertical();
     }
 }

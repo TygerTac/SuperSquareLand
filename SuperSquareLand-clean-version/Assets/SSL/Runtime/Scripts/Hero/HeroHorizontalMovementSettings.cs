@@ -11,3 +11,4 @@ public class HeroHorizontalMovementSettings
     public float turnBackFrictions = 25f;
     public float speedMax = 5f;
 }
+
