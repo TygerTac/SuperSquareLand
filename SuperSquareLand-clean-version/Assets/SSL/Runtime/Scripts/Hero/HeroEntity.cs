@@ -27,6 +27,9 @@ public class HeroEntity : MonoBehaviour
     private bool _isDashing = false;
     private float _dashTimer = 0f;
 
+    [Header("Groound")]
+    [SerializeField] private GroundDetector _groundDetector;
+    public bool IsTouchingGround{ get; private set;} = false;
 
     [Header("Debug")]
     [SerializeField] private bool _guiDebug = false;
@@ -45,15 +48,20 @@ public class HeroEntity : MonoBehaviour
 
     private void FixedUpdate()
     {
+        _ApplyGroundDetection();
         if (_AreOrientAndMovementOpposite())
         {
             _TurnBack();
         } else {
             _UpdateHorizonSpeed();
             _ChangeOrientFromHorizontalMovement();
-        } 
-        _ApplyFallGravity();
-
+        }
+        if(!IsTouchingGround)
+        {
+            _ApplyFallGravity();
+        } else {
+            _ResetVerticalSpeed();
+        }
         _ApplyHorizontalSpeed();
         _ApplyVerticalSpeed();
     }
@@ -96,6 +104,16 @@ public class HeroEntity : MonoBehaviour
         Vector2 velocity = _rigidbody.velocity;
         velocity.y = _verticalSpeed;
         _rigidbody.velocity = velocity;
+    }
+
+    private void _ApplyGroundDetection()
+    {
+        IsTouchingGround = _groundDetector.DetectGroundNearBy();
+    }
+
+    private void _ResetVerticalSpeed()
+    {
+        _verticalSpeed = 0f;
     }
     private void _Accelerate()
     {
