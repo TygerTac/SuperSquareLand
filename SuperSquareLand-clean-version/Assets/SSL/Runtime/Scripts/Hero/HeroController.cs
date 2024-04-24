@@ -1,3 +1,4 @@
+using System.Xml;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -5,6 +6,11 @@ public class HeroController : MonoBehaviour
 {
     [Header("Entity")]
     [SerializeField] private HeroEntity _entity;
+    private bool _entityWastouchingGround = false;
+
+    [Header("Coyote Time")]
+    [SerializeField] private float _coyoteTimeDuration = 0.2f;
+    private float _coyoteTimeCountdown = 1f;
 
     [Header("Jump Buffering")]
     [SerializeField] private float _jumpBufferDuration = 0.2f;
@@ -31,9 +37,16 @@ public class HeroController : MonoBehaviour
     {
         _entity.SetMoveDirX(GetInputMoveX());
 
+        if(_EntityHasExitGround())
+        {
+            _ResetCoyoteTime();
+        } else {
+            _UpdateCoyoteTime();
+        }
+
         if (_GetInputDownJump())
         {
-            if (_entity.IsTouchingGround && !_entity.IsJumping)
+            if ((_entity.IsTouchingGround || _IsCoyoteTimeActive()) && !_entity.IsJumping)
             {
                 _entity.JumpStart();
             } else {
@@ -43,7 +56,7 @@ public class HeroController : MonoBehaviour
 
         if(IsJumpBufferActive())
         {
-            if(_entity.IsTouchingGround && !_entity.IsJumping)
+            if((_entity.IsTouchingGround || _IsCoyoteTimeActive()) && !_entity.IsJumping)
             {
                 _entity.JumpStart();
             }
@@ -59,7 +72,8 @@ public class HeroController : MonoBehaviour
         if (_GetInputDash())
         {    
             _entity.DashStart();    
-        } 
+        }
+        _entityWastouchingGround = _entity.IsTouchingGround;
     }
 
     private float GetInputMoveX()
@@ -110,4 +124,25 @@ public class HeroController : MonoBehaviour
     {
         _jumpBufferTimer = _jumpBufferDuration;
     }
+
+    private void _UpdateCoyoteTime()
+    {
+        if(!_IsCoyoteTimeActive()) return;
+        _coyoteTimeCountdown -= Time.deltaTime;
+    }
+    private bool _IsCoyoteTimeActive()
+    {
+        return _coyoteTimeCountdown > 0f;
+    }
+
+    private void _ResetCoyoteTime()
+    {
+        _coyoteTimeCountdown = _coyoteTimeDuration;
+    }
+
+    private bool _EntityHasExitGround()
+    {
+        return _entityWastouchingGround && !_entity.IsTouchingGround;
+    }
+
 }

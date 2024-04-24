@@ -45,6 +45,7 @@ public class HeroEntity : MonoBehaviour
     [Header("Jump")]
     [SerializeField] private HeroJumpSettings _jumpSettings;
     [SerializeField] private HeroFallSettings _jumpFallSettings;
+    
 
     [Header("Debug")]
     [SerializeField] private bool _guiDebug = false;
