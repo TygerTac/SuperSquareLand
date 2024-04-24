@@ -9,8 +9,9 @@ public class HeroEntity : MonoBehaviour
     [SerializeField] private Rigidbody2D _rigidbody;
 
     [Header("Horizontal Movements")]
-    [SerializeField] private HeroHorizontalMovementSettings _movementsSettings;
     [FormerlySerializedAs("_movementsSettings")]
+    [SerializeField] private HeroHorizontalMovementSettings _groundHorizontalMovementSettings;
+    [SerializeField] private HeroHorizontalMovementSettings _airHorizontalMovementSettings;
     private float _horizontalSpeed = 0f;
     private float _moveDirX = 0f;
 
@@ -64,11 +65,12 @@ public class HeroEntity : MonoBehaviour
     {
         _ApplyGroundDetection();
         _ApplyWallDetection();
+        HeroHorizontalMovementSettings HorizontalMovementSettings = _GetCurrentHorizontalMovementSettings();
         if (_AreOrientAndMovementOpposite())
         {
-            _TurnBack();
+            _TurnBack(HorizontalMovementSettings);
         } else {
-            _UpdateHorizonSpeed();
+            _UpdateHorizonSpeed(HorizontalMovementSettings);
             _ChangeOrientFromHorizontalMovement();
         }
         if(IsDashing())
@@ -113,13 +115,23 @@ public class HeroEntity : MonoBehaviour
         _rigidbody.velocity = velocity;
     }
 
-    private void _UpdateHorizonSpeed()
+    private void _UpdateHorizonSpeed(HeroHorizontalMovementSettings settings)
     {
         if(_moveDirX != 0f)
         {
-            _Accelerate();
+            _Accelerate(settings);
         } else {
-            _Decelerate();
+            _Decelerate(settings);
+        }
+    }
+
+    private HeroHorizontalMovementSettings _GetCurrentHorizontalMovementSettings()
+    {
+        if(IsTouchingGround)
+        {
+            return _groundHorizontalMovementSettings;
+        } else {
+            return _airHorizontalMovementSettings;
         }
     }
 
@@ -276,27 +288,27 @@ public class HeroEntity : MonoBehaviour
                 break;
         }
     }
-    private void _Accelerate()
+    private void _Accelerate(HeroHorizontalMovementSettings settings)
     {
-        _horizontalSpeed += _movementsSettings.acceleration * Time.fixedDeltaTime;
-        if (_horizontalSpeed > _movementsSettings.speedMax) 
+        _horizontalSpeed += settings.acceleration * Time.fixedDeltaTime;
+        if (_horizontalSpeed > settings.speedMax) 
         {
-            _horizontalSpeed = _movementsSettings.speedMax;
+            _horizontalSpeed = settings.speedMax;
         }
     }
     
-    private void _Decelerate()
+    private void _Decelerate(HeroHorizontalMovementSettings settings)
     {
-        _horizontalSpeed -= _movementsSettings.deceleration * Time.fixedDeltaTime;
+        _horizontalSpeed -= settings.deceleration * Time.fixedDeltaTime;
         if (_horizontalSpeed < 0f) 
         {
             _horizontalSpeed = 0f;
         }
     }
 
-    private void _TurnBack()
+    private void _TurnBack(HeroHorizontalMovementSettings settings)
     {
-        _horizontalSpeed -= _movementsSettings.turnBackFrictions * Time.fixedDeltaTime;
+        _horizontalSpeed -= settings.turnBackFrictions * Time.fixedDeltaTime;
         if(_horizontalSpeed < 0f)
         {
             _horizontalSpeed = 0f;
