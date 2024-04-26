@@ -20,7 +20,6 @@ public class CameraManager : MonoBehaviour
     //Damping
     private Vector3 _dampedPosition;
 
-
     private void Awake()
     {
         Instance = this;
@@ -28,6 +27,7 @@ public class CameraManager : MonoBehaviour
     public void Update()
     {
         Vector3 nextPosition = _FindCameraNextPosition();
+        nextPosition = _ClampPositionIntoBounds (nextPosition);
         nextPosition = _ApplyDamping(nextPosition);
 
 
@@ -66,7 +66,7 @@ public class CameraManager : MonoBehaviour
         _currentCameraProfile = _defaultCameraProfile;
         _SetCameraPosition(_currentCameraProfile.Position);
         _SetCameraSize(_currentCameraProfile.CameraSize);
-        _SetCameraDampedPosition(_FindCameraNextPosition());
+        _SetCameraDampedPosition(_ClampPositionIntoBounds(_FindCameraNextPosition()));
     }
 
     public void EnterProfile(CameraProfile cameraProfile, CameraProfileTransition transition = null)
@@ -157,4 +157,35 @@ public class CameraManager : MonoBehaviour
         _dampedPosition.x = position.x;
         _dampedPosition.y = position.y;
     }
+
+    private Vector3 _ClampPositionIntoBounds(Vector3 position)
+    {
+        if(!_currentCameraProfile.HasBounds) return position;
+        Rect boundsRect = _currentCameraProfile.BoundsRect;
+        Vector3 worldBottomLeft = _camera.ScreenToWorldPoint(new Vector3(0f, 0f));
+        Vector3 worldTopRight = _camera.ScreenToWorldPoint(new Vector3(_camera.pixelWidth, _camera.pixelHeight));
+        Vector2 WorldScreenSize = new Vector2(worldTopRight.x - worldBottomLeft.x, worldTopRight.y - worldBottomLeft.y);
+        Vector2 WorldHalfScreenSize = WorldScreenSize /2f;
+        
+        if(position.x > boundsRect.xMax - WorldHalfScreenSize.x)
+        {
+            position.x = boundsRect.xMax - WorldHalfScreenSize.x;
+        }
+        if(position.x < boundsRect.xMin - WorldHalfScreenSize.x)
+        {
+            position.x = boundsRect.xMin - WorldHalfScreenSize.x;
+        }
+        if(position.y > boundsRect.yMax - WorldHalfScreenSize.y)
+        {
+            position.y = boundsRect.yMax - WorldHalfScreenSize.y;
+        }
+        if(position.y < boundsRect.yMin - WorldHalfScreenSize.y)
+        {
+            position.y = boundsRect.yMin - WorldHalfScreenSize.y;
+        }
+
+        return position;
+        
+    }
+
 }
