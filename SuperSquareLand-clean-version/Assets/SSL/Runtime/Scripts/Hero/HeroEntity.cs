@@ -275,6 +275,8 @@ public class HeroEntity : MonoBehaviour
     {
             _ResetHorizontalSpeed();
             _DashState = DashState.NotDashing;
+            StopJumpImpulsion();
+            _jumpState = JumpState.NotJumping;
             _isDashing = false;
     }
     private void _UpdateDash()

@@ -5,6 +5,10 @@ public class CameraChangeProfileTrigger : MonoBehaviour
     private const string TARGET_TAG = "CameraTriggerTarget";
     [Header("Camera Profile")]
     [SerializeField] private CameraProfile _cameraProfile;
+
+    [Header("Camera Transitions")]
+    [SerializeField] private CameraProfileTransition _entertransition;
+    [SerializeField] private CameraProfileTransition _exittransition;
     
     [Header("Trigger Box")]
     [SerializeField] private BoxCollider2D _boxCollider;
@@ -24,11 +28,11 @@ public class CameraChangeProfileTrigger : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if(!other.CompareTag(TARGET_TAG)) return;
-        CameraManager.Instance.EnterProfile(_cameraProfile);
+        CameraManager.Instance.EnterProfile(_cameraProfile, _entertransition);
     }
     private void OnTriggerExit2D(Collider2D other)
     {
         if(!other.CompareTag(TARGET_TAG)) return;
-        CameraManager.Instance.ExitProfile(_cameraProfile);
+        CameraManager.Instance.ExitProfile(_cameraProfile, _exittransition);
     }
 }
