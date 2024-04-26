@@ -615,6 +615,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _cameraProfile: {fileID: 869992945}
+  _entertransition:
+    duration: 0.5
+  _exittransition:
+    duration: 0.5
   _boxCollider: {fileID: 652839055}
 --- !u!61 &652839055
 BoxCollider2D:
@@ -913,6 +917,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17f0799299754a109c3f3f9e5153f6f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _profileType: 0
+  _targetToFollow: {fileID: 0}
 --- !u!20 &869992946
 Camera:
   m_ObjectHideFlags: 0
@@ -1458,7 +1464,7 @@ Transform:
   m_GameObject: {fileID: 1612629484}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 100, y: 105, z: -10}
+  m_LocalPosition: {x: 100, y: 102.51, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1527,6 +1533,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17f0799299754a109c3f3f9e5153f6f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _profileType: 0
+  _targetToFollow: {fileID: 0}
 --- !u!1 &1641381205
 GameObject:
   m_ObjectHideFlags: 0

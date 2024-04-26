@@ -66,6 +66,8 @@ public class HeroEntity : MonoBehaviour
     {
         _ApplyGroundDetection();
         _ApplyWallDetection();
+        _UpdateCameraFollowPosition();
+
         HeroHorizontalMovementSettings HorizontalMovementSettings = _GetCurrentHorizontalMovementSettings();
         if (_AreOrientAndMovementOpposite())
         {
@@ -335,6 +337,25 @@ public class HeroEntity : MonoBehaviour
         Vector3 newScale = _orientVisualRoot.localScale;
         newScale.x = _orientX;
         _orientVisualRoot.localScale = newScale;
+    }
+
+    //Camera Follow
+    private CameraFollowable _cameraFollowable;
+
+    private void Awake()
+    {
+        _cameraFollowable = GetComponent<CameraFollowable>();
+        _cameraFollowable.FollowPositionX = _rigidbody.position.x;
+        _cameraFollowable.FollowPositionY = _rigidbody.position.y;
+    }
+
+    private void _UpdateCameraFollowPosition()
+    {
+        _cameraFollowable.FollowPositionX = _rigidbody.position.x;
+        if(IsTouchingGround && !IsJumping)
+        {
+            _cameraFollowable.FollowPositionY = _rigidbody.position.y;
+        }
     }
 
     private void OnGUI()
